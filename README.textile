@@ -1,0 +1,15 @@
+h1. Learn Redis
+
+h2. About
+
+p. This code is the product (still in progress) of some hours spent learning Redis.
+
+p. We focused on simple problem, a book inventory app, and tried to solve it with a _nosql_ approach, using ruby, sinatra and redis-rb.
+
+h2. The code
+
+p. <code>library.rb</code> works as an interface with Redis.
+
+p. <code>poormenslibrary.rb</code> is the sinatra app that interfaces with users.
+
+More code will come.
