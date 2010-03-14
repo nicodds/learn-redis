@@ -1,0 +1,24 @@
+form { 
+    margin: 0;
+    padding: 0;
+    min-width: 500px;
+    max-width: 600px;
+    width: 560px; 
+}
+
+form label { 
+    display: block;
+    float: left; 
+    width: 150px; 
+    padding: 0; 
+    margin: 5px 0 0;
+    text-align: right; 
+}
+
+form input, form textarea, form select {
+    margin: 5px 0 0 10px;
+}
+
+form br {
+    clear: left;
+}

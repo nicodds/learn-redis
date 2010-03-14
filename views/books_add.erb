@@ -1,0 +1,31 @@
+<h1>Add a new book</h1>
+
+<form id="bookform" method="post" action="/books/save">
+  <label for="title">Title:</label>  <input id="title" type="text" name="title"/><br />
+
+  <label for="authors">Authors:</label>
+  <select id="authors" name="authors[]" multiple="multiple">
+    <option>Select authors</option>
+    <% @authors.each do |author| %>
+    <% unless author.nil? %>
+    <option value="<%= author.id %>"><%=author.name+' '+author.surname %></option>
+    <% end %>
+    <% end %>
+  </select><br />
+
+  <label for="topics">Topics:</label> 
+  <select id="topics" name="topics[]" multiple="multiple">
+    <option>Select topics</option>
+    <% @topics.each do |topic| %>
+    <% unless topic.nil? %>
+    <option value="<%= topic.id %>"><%=topic.name %></option>
+    <% end %>
+    <% end %>
+  </select><br />
+
+  <label for="isbn">ISBN:</label> <input id="isbn" name="isbn" type="text" /><br />
+  <label for="pages">Pages:</label> <input id="pages" name="pages" type="text" /><br />
+  <label for="price">Price:</label> <input id="price" name="price" type="text" /><br />
+  <label for="description">Description:</label> <textarea id="description" name="description"></textarea><br />
+  <input type="submit" /><br />
+</form>

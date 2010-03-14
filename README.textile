@@ -4,12 +4,27 @@ h2. About
 
 p. This code is the product (still in progress) of some hours spent learning Redis.
 
-p. We focused on simple problem, a book inventory app, and tried to solve it with a _nosql_ approach, using ruby, sinatra and redis-rb.
+p. We focused on a simple problem, a book inventory app, and tried to solve it with a _nosql_ approach, using ruby, sinatra and redis-rb.
 
 h2. The code
 
-p. <code>library.rb</code> works as an interface with Redis.
+p. A short summary of the code:
 
-p. <code>poormenslibrary.rb</code> is the sinatra app that interfaces with users.
+# <code>library.rb</code> works as an interface with Redis;
+# <code>poormenslibrary.rb</code> is the sinatra app that interfaces with users.
 
-More code will come.
+p. More code will come. 
+
+p. This code has to be intended as a rough journey in Redis peculiarities, few checks are done on the sanity of user input, so use it just as starting point to learn how to model your database using Redis.
+
+h2. Requirements
+
+p. Before using this code, you should check in your system if you have a working installation of the Redis server. After you are shure that Redis is up and running, you should install 2 gems, in order to get the library app working:
+
+<pre>
+gem install sinatra json
+gem sources -a http://gems.github.com
+gem install ezmobius-redis-rb
+</pre>
+
+p. Now you are ready to taste Redis candies by issuing the command <code>ruby poormenslibrary.rb</code> from the app directory.

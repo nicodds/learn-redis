@@ -1,0 +1,37 @@
+<h1>Book Details</h1>
+
+<p><a href="/books/remove/<%= @book.id %>">Remove this book</a><p>
+
+<div id="details">
+  <div class="item">
+    <span class="label">Title:</span> 
+    <span id="title"><%= @book.title %></span>
+  </div>
+  <div class="item">
+    <span class="label">Author(s):</span> 
+    <span id="authors">
+    <%= formatted_author_list(@book.authors.map {|a| {:id => a.id, :text => a.name+' '+a.surname} }) %>
+    </span>
+  </div>
+  <div class="item">
+    <span class="label">Topic(s):</span> 
+    <span id="topics">
+    <%= formatted_topic_list(@book.topics.map {|a| {:id => a.id, :text => a.name} }) %>
+    </span>
+  </div>
+  <div class="item">
+    <span class="label">ISBN:</span> 
+    <span id="pages"><%= @book.isbn %></span>
+  </div>
+  <div class="item">
+    <span class="label">Pages:</span> 
+    <span id="pages"><%= @book.pages %></span>
+  </div>
+  <div class="item">
+    <span class="label">Price:</span> 
+    <span id="pages"><%= @book.price %></span>
+  </div>
+  <div class="item">
+    <span id="description"><%= @book.description %></span>
+  </div>  
+</div>

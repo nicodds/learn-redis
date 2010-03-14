@@ -2,7 +2,7 @@ require 'rubygems'
 require 'redis'
 
 
-BOOK_STRING_ATTRS = %w(title isbn description price)
+BOOK_STRING_ATTRS = %w(title isbn description price pages)
 
 
 class RedisHub
@@ -35,6 +35,9 @@ class Book
     @topics = options[:topics] unless options[:topics].nil?
   end
 
+  # given a book_id, returns the corresponding book object with all
+  # the attributes loaded from Redis; if the book_id does not exists,
+  # it returns nil.
   def self.get(id)
     hub = RedisHub.get_instance
 
@@ -45,8 +48,7 @@ class Book
     end
     
     book.authors = Book.get_book_authors(id) 
-    book.topics = Book.get_book_topics(id)
-  
+    book.topics = Book.get_book_topics(id)  
     BOOK_STRING_ATTRS.each do |attr|
       book.send "#{attr}=".to_sym, hub.get("book:#{id}:#{attr}")
     end
@@ -54,9 +56,10 @@ class Book
     book
   end
 
+  # returns an array of book objects corresponding to all the book_id
+  # available in our Redis book:list key
   def self.get_all
     books = []
-
     RedisHub.get_instance.lrange('book:list', 0, -1).each do |book_id|
       books.push(Book.get(book_id))
     end
@@ -64,7 +67,8 @@ class Book
     books
   end
 
-  def save()    
+  # save the book object in Redis
+  def save
     # add the id to the book list
     @hub.lpush('book:list', @id)
 
@@ -77,6 +81,7 @@ class Book
     # and add the book id to the set of all the books belonging to the
     # same topic
     @topics.each do |topic|
+      puts 'Book.save for topic id ' + topic.to_s
       @hub.sadd("book:#{@id}:topics", topic)
       Topic.add_book(topic, id)
     end
@@ -85,18 +90,21 @@ class Book
     # the book id to the set of all the books belonging to the same
     # author
     @authors.each do |author|
+      puts 'Book.save for author id ' + author.to_s
       @hub.sadd("book:#{@id}:authors", author)
       Author.add_book(author, id)
     end
   end
 
+  # given a book_id, delete all keys associated with it from the Redis
+  # database
   def self.remove(id)
     hub = RedisHub.get_instance
  
     BOOK_STRING_ATTRS.each do |attr|
       hub.del("book:#{id}:#{attr}")
-    end
-    
+    end    
+
     Book.get_book_topics(id).each do |topic|
       Topic.remove_book(topic, id)
     end
@@ -110,16 +118,37 @@ class Book
     hub.lrem('book:list', 1, id)
   end
 
-  def self.get_latest(n_item=5)
-    RedisHub.get_instance.lrange('book:list', 0, n_item-1)
+  # returns an array with all the book objects available in the
+  # book:list key between start and stop
+  def self.get_books_range(start, stop)
+    books = []
+    RedisHub.get_instance.lrange('book:list', start, stop).each do |book_id|
+      books.push(Book.get(book_id))
+    end
+
+    books
   end
 
+  # returns an array with all the topic objects relative to the given
+  # book_id
   def self.get_book_topics(id)
-    RedisHub.get_instance.smembers("book:#{id}:topics")
+    topics = []
+    RedisHub.get_instance.smembers("book:#{id}:topics").each do |topic_id|
+      topics.push(Topic.get(topic_id))
+    end
+
+    topics
   end
 
+  # returns an array with all the author objects relative to the given
+  # book_id
   def self.get_book_authors(id)
-    RedisHub.get_instance.smembers("book:#{id}:authors")
+    authors = []
+    RedisHub.get_instance.smembers("book:#{id}:authors").each do |author_id|
+      authors.push(Author.get(author_id))
+    end
+
+    authors
   end
 end
 
@@ -154,7 +183,6 @@ class Topic
 
   def self.get_all
     topics = []
-    
     RedisHub.get_instance.lrange('topic:list', 0, -1).each do |topic_id|
       topics.push(Topic.get(topic_id))
     end
@@ -162,7 +190,7 @@ class Topic
     topics
   end
 
-  def save()
+  def save
     @hub.lpush('topic:list', @id)
 
     @hub.set("topic:#{@id}:name", @name)
@@ -173,6 +201,7 @@ class Topic
   end
 
   def self.add_book(topic_id, book_id)
+    puts 'Topic.add_book called with topic_id '+topic_id.to_s+' and book_id'+book_id.to_s
     RedisHub.get_instance.sadd("topic:#{topic_id}:books", book_id)
   end
 
@@ -226,8 +255,7 @@ class Author
 
   def self.get_all
     authors = []
-
-    RedisHub.get_instance.lrange('topic:list', 0, -1).each do |author_id|
+    RedisHub.get_instance.lrange('author:list', 0, -1).each do |author_id|
       authors.push(Author.get(author_id))
     end
 
@@ -243,8 +271,9 @@ class Author
       @hub.sadd("author:#{@id}:books", book)
     end
   end
-  
+
   def self.add_book(author_id, book_id)
+    puts 'Author.add_book called with author_id '+author_id.to_s+' and book_id'+book_id.to_s
     RedisHub.get_instance.sadd("author:#{author_id}:books", book_id)
   end
 

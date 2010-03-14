@@ -1,0 +1,12 @@
+<h1>Our books</h1>
+
+<div id="booklist">
+  <ul>
+    <% @books.each do |book| %>
+    <li><a href="/books/show/<%= book.id %>"><%= book.title %></a></li>
+    <% end %>
+  </ul>
+  <div style="position: absolute; right: 46px;">
+    <a href="/books/list/<%= @start.to_i+10 %>">next books</a>
+  </div>
+</div>
