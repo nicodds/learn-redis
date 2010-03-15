@@ -1,0 +1,21 @@
+<h1>Topic details</h1>
+
+<p><a href="/topics/remove/<%= @topic.id %>">Remove this topic</a></p>
+
+<div id="details">
+  <div class="item">
+    <span class="label">Name:</span> 
+    <span id="name"><%= @topic.name %></span>
+  </div>
+  <div class="item">
+    <span class="label">Description:</span> 
+    <span id="name"><%= @topic.description %></span>
+  </div>
+</div>
+
+<h2>Books</h2>
+<ul>
+<% @books.each do |book| %>
+   <li><a href="/books/show/<%= book.id %>"><%= book.title %></a>
+<% end %>
+</ul>

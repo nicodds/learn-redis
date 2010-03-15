@@ -1,0 +1,21 @@
+<h1>Author details</h1>
+
+<p><a href="/authors/remove/<%= @author.id %>">Remove this author</a></p>
+
+<div id="details">
+  <div class="item">
+    <span class="label">Name:</span> 
+    <span id="name"><%= @author.name %></span>
+  </div>
+  <div class="item">
+    <span class="label">Surname:</span> 
+    <span id="name"><%= @author.surname %></span>
+  </div>
+</div>
+
+<h2>Books</h2>
+<ul>
+<% @books.each do |book| %>
+   <li><a href="/books/show/<%= book.id %>"><%= book.title %></a>
+<% end %>
+</ul>
