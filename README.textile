@@ -22,7 +22,7 @@ h2. Requirements
 p. Before using this code, you should check in your system if you have a working installation of the Redis server. After you are shure that Redis is up and running, you should install 2 gems, in order to get the library app working:
 
 <pre>
-gem install sinatra json
+gem install sinatra
 gem sources -a http://gems.github.com
 gem install ezmobius-redis-rb
 </pre>
