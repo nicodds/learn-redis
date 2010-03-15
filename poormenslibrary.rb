@@ -1,6 +1,5 @@
 require 'library.rb'
 require 'sinatra'
-require 'json'
 require 'erb'
 
 
@@ -69,37 +68,43 @@ get '/topics' do
   max = 1
 
   topics.each do |topic|
-    next if topic.nil?
     max = topic.books.size if topic.books.size > max
   end
   
   @tags = topics.map do |topic|
-    size = (topic.books.size == 0) ? 100 : topic.books.size.to_f * 300.0 / max.to_f 
-
-    {:id => topic.id, :text =>"<span style=\"font-size: #{size}%\">#{topic.name}</span>"}
+    size = (topic.books.size == 0) ? 90 : topic.books.size.to_f * 300.0 / max.to_f 
+    {:id => topic.id, :text => "<span style=\"font-size: #{size}%\">#{topic.name}</span>"}
   end
 
-  formatted_topic_list(@tags)
-end
-
-get '/topics/books/:id' do
-  
-end
-
-get '/topics/list' do
-
+  erb :topics_list
 end
 
 get '/topics/show/:id' do
+  @topic = Topic.get(params[:id])
+  @books = []
 
+  @topic.books.each do |book_id|
+    @books.push(Book.get(book_id))
+  end
+
+  erb :topics_show
 end
 
-post '/topics/add' do
+get '/topics/add' do
+  erb :topics_add
+end
 
+post '/topics/save' do
+  topic = Topic.new(:name => params[:name], :description => params[:description])
+  topic.save
+
+  redirect '/topics'
 end
 
 get '/topics/remove/:id' do
+  Topic.remove(params[:id])
 
+  redirect '/topics'
 end
 
 
@@ -109,36 +114,41 @@ get '/authors' do
   max = 1
 
   authors.each do |author|
-    next if author.nil?
     max = author.books.size if author.books.size > max
   end
   
   @tags = authors.map do |author|
-    next if author.nil?
-    size = (author.books.size == 0) ? 100 : author.books.size.to_f * 300.0 / max.to_f 
-
+    size = (author.books.size == 0) ? 90 : author.books.size.to_f * 300.0 / max.to_f 
     {:id => author.id, :text =>"<span style=\"font-size: #{size}%\">#{author.name} #{author.surname}</span>"}
   end
 
-  formatted_author_list(@tags)
-end
-
-get '/authors/books/:id' do
-
-end
-
-get '/authors/list' do
-
+  erb :authors_list
 end
 
 get '/authors/show/:id' do
+  @author = Author.get(params[:id])
+  @books = []
 
+  @author.books.each do |book_id|
+    @books.push(Book.get(book_id))
+  end
+
+  erb :authors_show
 end
 
-post '/authors/add' do
+get '/authors/add' do
+  erb :authors_add
+end
 
+post '/authors/save' do
+  author = Author.new(:name => params[:name], :surname => params[:surname])
+  author.save
+
+  redirect '/authors'
 end
 
 get '/authors/remove/:id' do
+  Author.remove(params[:id])
 
+  redirect '/authors'
 end
