@@ -6,6 +6,7 @@ BOOK_STRING_ATTRS = %w(title isbn description price pages)
 
 
 class RedisHub
+  private_class_method :new
   @@r_hub = nil
 
   def self.get_instance
@@ -81,16 +82,16 @@ class Book
     # and add the book id to the set of all the books belonging to the
     # same topic
     @topics.each do |topic|
-      puts 'Book.save for topic id ' + topic.to_s
-      @hub.sadd("book:#{@id}:topics", topic)
-      Topic.add_book(topic, id)
+      tid = (topic.is_a?(Book)) ? topic.id : topic
+      @hub.sadd("book:#{@id}:topics", tid)
+      Topic.add_book(tid, id)
     end
         
     # create a set containing all the authors id of our book and add
     # the book id to the set of all the books belonging to the same
     # author
     @authors.each do |author|
-      puts 'Book.save for author id ' + author.to_s
+      aid = (author.is_a?(Author)) ? author.id : author
       @hub.sadd("book:#{@id}:authors", author)
       Author.add_book(author, id)
     end
@@ -106,12 +107,12 @@ class Book
     end    
 
     Book.get_book_topics(id).each do |topic|
-      Topic.remove_book(topic, id)
+      Topic.remove_book(topic.id, id)
     end
     hub.del("book:#{id}:topics")
 
     Book.get_book_authors(id).each do |author|
-      Author.remove_book(author, id)
+      Author.remove_book(author.id, id)
     end
     hub.del("book:#{id}:authors")
 
@@ -162,7 +163,7 @@ class Topic
     @id = options[:id].nil? ? @hub.incr('topic:next_id') : options[:id]
     @name = options[:name] unless options[:name].nil?
     @description = options[:description] unless options[:description].nil?
-    @books = options[:books] unless options[:books].nil?
+    @books = options[:books] || []
   end
 
   def self.get(id)
@@ -234,7 +235,7 @@ class Author
     @id = options[:id].nil? ? @hub.incr('author:next_id') : options[:id]
     @name = options[:name] unless options[:name].nil?
     @surname = options[:surname] unless options[:surname].nil?
-    @books = options[:books] unless options[:books].nil?
+    @books = options[:books] || []
   end
 
   def self.get(id)
