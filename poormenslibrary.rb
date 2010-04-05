@@ -32,18 +32,18 @@ get '/books/list/:start' do
   @start = (params[:start].nil? or params[:start] == '') ? 0 : params[:start]
   @books = Book.get_books_range(@start.to_i, @start.to_i+9)
 
-  erb :books_list
+  erb 'books/list'.to_sym
 end
 
 get '/books/show/:id' do
   @book = Book.get(params[:id])
-  erb :books_show
+  erb 'books/show'.to_sym
 end
 
 get '/books/add' do
   @authors = Author.get_all
   @topics = Topic.get_all
-  erb :books_add
+  erb 'books/add'.to_sym
 end
 
 post '/books/save' do
@@ -76,7 +76,7 @@ get '/topics' do
     {:id => topic.id, :text => "<span style=\"font-size: #{size}%\">#{topic.name}</span>"}
   end
 
-  erb :topics_list
+  erb 'topics/list'.to_sym
 end
 
 get '/topics/show/:id' do
@@ -87,11 +87,11 @@ get '/topics/show/:id' do
     @books.push(Book.get(book_id))
   end
 
-  erb :topics_show
+  erb 'topics/show'.to_sym
 end
 
 get '/topics/add' do
-  erb :topics_add
+  erb 'topics/add'.to_sym
 end
 
 post '/topics/save' do
@@ -122,7 +122,7 @@ get '/authors' do
     {:id => author.id, :text =>"<span style=\"font-size: #{size}%\">#{author.name} #{author.surname}</span>"}
   end
 
-  erb :authors_list
+  erb 'authors/list'.to_sym
 end
 
 get '/authors/show/:id' do
@@ -133,11 +133,11 @@ get '/authors/show/:id' do
     @books.push(Book.get(book_id))
   end
 
-  erb :authors_show
+  erb 'authors/show'.to_sym
 end
 
 get '/authors/add' do
-  erb :authors_add
+  erb 'authors/add'.to_sym
 end
 
 post '/authors/save' do
