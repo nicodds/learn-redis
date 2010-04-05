@@ -202,7 +202,6 @@ class Topic
   end
 
   def self.add_book(topic_id, book_id)
-    puts 'Topic.add_book called with topic_id '+topic_id.to_s+' and book_id'+book_id.to_s
     RedisHub.get_instance.sadd("topic:#{topic_id}:books", book_id)
   end
 
@@ -274,7 +273,6 @@ class Author
   end
 
   def self.add_book(author_id, book_id)
-    puts 'Author.add_book called with author_id '+author_id.to_s+' and book_id'+book_id.to_s
     RedisHub.get_instance.sadd("author:#{author_id}:books", book_id)
   end
 
