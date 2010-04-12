@@ -1,21 +1,18 @@
 require 'rubygems'
 require 'redis'
-
+require 'singleton'
 
 BOOK_STRING_ATTRS = %w(title isbn description price pages)
 
 
-class RedisHub
-  private_class_method :new
-  @@r_hub = nil
+class RedisHub < Redis
 
-  def self.get_instance
-    if @@r_hub.nil?
-      @@r_hub = Redis.new
-    end
-    
-    @@r_hub
+  include Singleton
+  
+  def initialize
+    super
   end
+  
 end
 
 
@@ -24,7 +21,7 @@ class Book
   attr_accessor :title, :isbn, :description, :price, :pages, :authors, :topics
 
   def initialize(options = {})
-    @hub = RedisHub.get_instance
+    @hub = RedisHub.instance
 
     @id = options[:id].nil? ? @hub.incr('book:next_id') : options[:id]
     @title = options[:title] unless options[:title].nil?
@@ -40,7 +37,7 @@ class Book
   # the attributes loaded from Redis; if the book_id does not exists,
   # it returns nil.
   def self.get(id)
-    hub = RedisHub.get_instance
+    hub = RedisHub.instance
 
     if hub.get("book:#{id}:title")
       book = Book.new(:id => id)
@@ -61,7 +58,7 @@ class Book
   # available in our Redis book:list key
   def self.get_all
     books = []
-    RedisHub.get_instance.lrange('book:list', 0, -1).each do |book_id|
+    RedisHub.instance.lrange('book:list', 0, -1).each do |book_id|
       books.push(Book.get(book_id))
     end
 
@@ -100,7 +97,7 @@ class Book
   # given a book_id, delete all keys associated with it from the Redis
   # database
   def self.remove(id)
-    hub = RedisHub.get_instance
+    hub = RedisHub.instance
  
     BOOK_STRING_ATTRS.each do |attr|
       hub.del("book:#{id}:#{attr}")
@@ -123,7 +120,7 @@ class Book
   # book:list key between start and stop
   def self.get_books_range(start, stop)
     books = []
-    RedisHub.get_instance.lrange('book:list', start, stop).each do |book_id|
+    RedisHub.instance.lrange('book:list', start, stop).each do |book_id|
       books.push(Book.get(book_id))
     end
 
@@ -134,7 +131,7 @@ class Book
   # book_id
   def self.get_book_topics(id)
     topics = []
-    RedisHub.get_instance.smembers("book:#{id}:topics").each do |topic_id|
+    RedisHub.instance.smembers("book:#{id}:topics").each do |topic_id|
       topics.push(Topic.get(topic_id))
     end
 
@@ -145,7 +142,7 @@ class Book
   # book_id
   def self.get_book_authors(id)
     authors = []
-    RedisHub.get_instance.smembers("book:#{id}:authors").each do |author_id|
+    RedisHub.instance.smembers("book:#{id}:authors").each do |author_id|
       authors.push(Author.get(author_id))
     end
 
@@ -158,7 +155,7 @@ class Topic
   attr_accessor :name, :description, :books
 
   def initialize(options = {})
-    @hub = RedisHub.get_instance
+    @hub = RedisHub.instance
 
     @id = options[:id].nil? ? @hub.incr('topic:next_id') : options[:id]
     @name = options[:name] unless options[:name].nil?
@@ -167,7 +164,7 @@ class Topic
   end
 
   def self.get(id)
-    hub = RedisHub.get_instance
+    hub = RedisHub.instance
 
     if hub.get("topic:#{id}:name")
       topic = Topic.new(:id => id)
@@ -184,7 +181,7 @@ class Topic
 
   def self.get_all
     topics = []
-    RedisHub.get_instance.lrange('topic:list', 0, -1).each do |topic_id|
+    RedisHub.instance.lrange('topic:list', 0, -1).each do |topic_id|
       topics.push(Topic.get(topic_id))
     end
 
@@ -202,15 +199,15 @@ class Topic
   end
 
   def self.add_book(topic_id, book_id)
-    RedisHub.get_instance.sadd("topic:#{topic_id}:books", book_id)
+    RedisHub.instance.sadd("topic:#{topic_id}:books", book_id)
   end
 
   def self.remove_book(topic_id, book_id)
-    RedisHub.get_instance.srem("topic:#{topic_id}:books", book_id)
+    RedisHub.instance.srem("topic:#{topic_id}:books", book_id)
   end
 
   def self.remove(id)
-    hub = RedisHub.get_instance
+    hub = RedisHub.instance
     hub.del("topic:#{id}:name")
     hub.del("topic:#{id}:description")
 
@@ -229,7 +226,7 @@ class Author
   attr_accessor :name, :surname, :books
 
   def initialize(options = {})
-    @hub = RedisHub.get_instance
+    @hub = RedisHub.instance
     
     @id = options[:id].nil? ? @hub.incr('author:next_id') : options[:id]
     @name = options[:name] unless options[:name].nil?
@@ -238,7 +235,7 @@ class Author
   end
 
   def self.get(id)
-    hub = RedisHub.get_instance
+    hub = RedisHub.instance
 
     if hub.get("author:#{id}:name")
       author = Author.new(:id => id)
@@ -255,7 +252,7 @@ class Author
 
   def self.get_all
     authors = []
-    RedisHub.get_instance.lrange('author:list', 0, -1).each do |author_id|
+    RedisHub.instance.lrange('author:list', 0, -1).each do |author_id|
       authors.push(Author.get(author_id))
     end
 
@@ -273,15 +270,15 @@ class Author
   end
 
   def self.add_book(author_id, book_id)
-    RedisHub.get_instance.sadd("author:#{author_id}:books", book_id)
+    RedisHub.instance.sadd("author:#{author_id}:books", book_id)
   end
 
   def self.remove_book(author_id, book_id)
-    RedisHub.get_instance.srem("author:#{author_id}:books", book_id)
+    RedisHub.instance.srem("author:#{author_id}:books", book_id)
   end  
   
   def self.remove(id)
-    hub = RedisHub.get_instance
+    hub = RedisHub.instance
 
     hub.del("author:#{id}:name")
     hub.del("author:#{id}:surname")
